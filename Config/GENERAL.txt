@@ -1,13 +1,20 @@
+# pushpot推送机器人
+CONFIG_PACKAGE_luci-app-pushbot=y
+CONFIG_PACKAGE_iputils-arping=y
+CONFIG_PACKAGE_jq=y
+# OpenAppFilter 工具
+CONFIG_PACKAGE_luci-app-appfilter=y
+CONFIG_PACKAGE_luci-app-oaf=y
 #科学插件调整
-CONFIG_PACKAGE_luci-app-homeproxy=y
+CONFIG_PACKAGE_luci-app-homeproxy=n
 #增加插件
 CONFIG_PACKAGE_luci-app-autoreboot=y
-CONFIG_PACKAGE_luci-app-gecoosac=y
+CONFIG_PACKAGE_luci-app-gecoosac=n
 CONFIG_PACKAGE_luci-app-mini-diskmanager=y
 CONFIG_PACKAGE_luci-app-partexp=y
 CONFIG_PACKAGE_luci-app-samba4=y
 CONFIG_PACKAGE_luci-app-upnp=y
-CONFIG_PACKAGE_luci-app-wolultra=y
+CONFIG_PACKAGE_luci-app-wolultra=n
 #删除插件
 CONFIG_PACKAGE_luci-app-attendedsysupgrade=n
 CONFIG_PACKAGE_luci-app-wol=n
