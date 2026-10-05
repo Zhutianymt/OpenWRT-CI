@@ -2,7 +2,7 @@
 # Copyright (C) 2026 VIKINGYFY
 
 #CI项目
-name: QCA-ALL
+name: REDMI AX6
 
 #CI计划
 on:
@@ -46,7 +46,7 @@ jobs:
       #编译配置
       WRT_CONFIG: ${{matrix.CONFIG}}
       #默认主题
-      WRT_THEME: aRGON
+      WRT_THEME: argon
       #默认主机名
       WRT_NAME: ZTWRT
       #默认WIFI名称
