@@ -75,9 +75,6 @@ UPDATE_PACKAGE "quickfile" "sbwml/luci-app-quickfile" "main"
 
 UPDATE_PACKAGE "ddns-go" "sirpdboy/luci-app-ddns-go" "main"
 UPDATE_PACKAGE "luci-app-tailscale" "asvow/luci-app-tailscale" "main"
-# 修复 tailscale 文件冲突：删除 luci-app-tailscale 自带的 root 文件，改由 tailscale 主包提供
-rm -f ./package/asvow/luci-app-tailscale/root/etc/init.d/tailscale
-rm -f ./package/asvow/luci-app-tailscale/root/etc/config/tailscale
 UPDATE_PACKAGE "luci-app-pushbot" "zzsj0928/luci-app-pushbot" "master"
 UPDATE_PACKAGE "netspeedtest" "sirpdboy/netspeedtest" "main" "" "homebox ookla-speedtest"
 UPDATE_PACKAGE "netwizard" "sirpdboy/luci-app-netwizard" "main"

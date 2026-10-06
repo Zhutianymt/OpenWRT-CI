@@ -82,6 +82,16 @@ fi
 #     echo "tailscale menu moved to services"
 # fi
 
+# 修复 tailscale 文件冲突：删除 luci-app-tailscale 自带的 root 文件，改由 tailscale 主包提供
+TS_PKG=$(find ./ ../feeds/ -maxdepth 4 -type d -iname "luci-app-tailscale" 2>/dev/null | head -n 1)
+if [ -n "$TS_PKG" ]; then
+	echo " "
+	rm -f "$TS_PKG/root/etc/init.d/tailscale" "$TS_PKG/root/etc/config/tailscale"
+	# 清理构建目录残留，避免旧文件被打包
+	find ./build_dir -maxdepth 4 -type d -iname "luci-app-tailscale*" -exec rm -rf {} + 2>/dev/null
+	echo "tailscale conflict files has been removed!"
+fi
+
 # 修复 luci-light 缺少 luci-theme-alpha 依赖
 LIGHT_MAKE=$(find ../feeds/ -path "*/luci-light/Makefile" 2>/dev/null | head -n 1)
 if [ -n "$LIGHT_MAKE" ]; then
