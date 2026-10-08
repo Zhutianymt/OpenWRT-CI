@@ -45,6 +45,9 @@ on:
         default: false
         type: boolean
 
+#CI权限：显式声明 write-all（含 actions: write），确保 artifacts 清理与 Release 发布正常
+permissions: write-all
+
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
   WRT_CONFIG: ${{inputs.WRT_CONFIG}}
@@ -310,3 +313,35 @@ jobs:
               gh cache delete "$CACHE_ID" --repo "$GH_REPO" ||
                 echo "warning: failed to delete cache $CACHE_ID ($CACHE_KEY)"
             done
+
+  artifact-cleanup:
+    name: Clean old artifacts
+    needs: core
+    # 测试模式不参与；always() 保证即使构建失败也执行清理，释放存储配额
+    if: ${{ !inputs.WRT_TEST && always() }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: wrt-artifact-cleanup-${{github.ref}}
+      cancel-in-progress: false
+    env:
+      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    steps:
+      - name: Delete Old Artifacts
+        run: |
+          # 构建产物通过 Release 发布，Artifacts 无保留价值；
+          # 策略：保留最近 3 个 Artifacts，删除更早的，释放 Actions 存储配额（0.5GB）
+          # 查询/删除失败仅告警，不影响构建结果
+          set -euo pipefail
+          ARTIFACT_IDS=$(gh api --paginate "/repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
+            --jq '.artifacts | sort_by(.created_at) | reverse | .[3:][] | .id' 2>/dev/null || true)
+          if [ -z "$ARTIFACT_IDS" ]; then
+            echo "No old artifacts found, nothing to delete."
+            exit 0
+          fi
+          COUNT=0
+          for ARTIFACT_ID in $ARTIFACT_IDS; do
+            gh api -X DELETE "/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID" >/dev/null 2>&1 \
+              && COUNT=$((COUNT+1)) \
+              || echo "warning: failed to delete artifact $ARTIFACT_ID"
+          done
+          echo "Deleted $COUNT old artifacts (kept latest 3)."
