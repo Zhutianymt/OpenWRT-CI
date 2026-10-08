@@ -328,14 +328,13 @@ jobs:
     steps:
       - name: Delete Old Artifacts
         run: |
-          # 构建产物通过 Release 发布，Artifacts 无保留价值；
-          # 策略：保留最近 3 个 Artifacts，删除更早的，释放 Actions 存储配额（0.5GB）
+          # 构建产物通过 Release 发布，Artifacts 无任何保留价值，全部删除释放 Actions 存储配额（0.5GB）
           # 查询/删除失败仅告警，不影响构建结果
           set -euo pipefail
           ARTIFACT_IDS=$(gh api --paginate "/repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
-            --jq '.artifacts | sort_by(.created_at) | reverse | .[3:][] | .id' 2>/dev/null || true)
+            --jq '.artifacts[].id' 2>/dev/null || true)
           if [ -z "$ARTIFACT_IDS" ]; then
-            echo "No old artifacts found, nothing to delete."
+            echo "No artifacts found, nothing to delete."
             exit 0
           fi
           COUNT=0
@@ -344,4 +343,4 @@ jobs:
               && COUNT=$((COUNT+1)) \
               || echo "warning: failed to delete artifact $ARTIFACT_ID"
           done
-          echo "Deleted $COUNT old artifacts (kept latest 3)."
+          echo "Deleted $COUNT artifacts."
